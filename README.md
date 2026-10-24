@@ -1,58 +1,151 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Blog
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Tests](https://github.com/webvmarahovskiy-prog/blog-laravel/actions/workflows/tests.yml/badge.svg)](https://github.com/webvmarahovskiy-prog/blog-laravel/actions/workflows/tests.yml)
+![PHP](https://img.shields.io/badge/PHP-8.5-777BB4?logo=php&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)
+![Livewire](https://img.shields.io/badge/Livewire-4-FB70A9?logo=livewire&logoColor=white)
+![Pest](https://img.shields.io/badge/Tests-Pest%205-F28D1A)
 
-## About Laravel
+Блог на Laravel 13 з інтерактивними формами на Livewire 4: зворотний зв'язок, підписка на розсилку та відгуки.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Можливості
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Контактна форма** — `/contact`, збереження повідомлень у `contact_messages`.
+- **Підписка на розсилку** — збереження email у `subscribers`.
+- **Відгуки** — `/reviews`, збереження у `reviews`.
+- Валідація в реальному часі через атрибути `#[Validate]`.
+- Flash-повідомлення після успішної відправки та скидання форми.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Стек
 
-## Learning Laravel
+| Компонент | Версія |
+|-----------|--------|
+| PHP       | 8.5    |
+| Laravel   | 13     |
+| Livewire  | 4      |
+| Pest      | 5      |
+| PHPUnit   | 13     |
+| БД        | SQLite (за замовчуванням) |
+| Фронтенд  | Vite   |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Вимоги
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP >= 8.5
+- Composer
+- Node.js та npm
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Встановлення
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone git@github.com:webvmarahovskiy-prog/blog-laravel.git
+cd blog-laravel
+composer setup
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Скрипт `composer setup` встановлює залежності, створює `.env`, генерує ключ застосунку, запускає міграції та збирає фронтенд.
 
-## Contributing
+<details>
+<summary>Встановлення вручну</summary>
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate
+npm install
+npm run build
+```
 
-## Code of Conduct
+</details>
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Запуск
 
-## Security Vulnerabilities
+```bash
+composer dev
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Застосунок буде доступний за адресою http://localhost:8000.
 
-## License
+### Docker
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+docker compose up -d
+```
+
+## Тести
+
+```bash
+composer test
+```
+
+Або напряму:
+
+```bash
+php artisan test
+```
+
+Тести також запускаються автоматично в GitHub Actions ([`.github/workflows/tests.yml`](.github/workflows/tests.yml)) при кожному push і pull request.
+
+## Архітектура
+
+Кожна форма складається з трьох частин:
+
+```
+app/
+├── Livewire/Forms/<Name>Form.php      # Livewire-компонент, валідація через #[Validate]
+├── Actions/<Name>/Store<Name>.php     # Збереження в БД, метод handle(array $data)
+resources/views/livewire/forms/        # Blade-шаблони форм
+tests/Feature/Actions/                 # Pest-тести для кожної Action
+```
+
+Потік даних:
+
+```
+Blade view → Livewire Form (#[Validate]) → Store<Name>::handle($data) → Model → БД
+                     ↓
+        reset() + session()->flash('success', ...)
+```
+
+### Приклад
+
+```php
+// app/Livewire/Forms/ContactMessageForm.php
+#[Validate('required|email|max:255', as: 'email')]
+public string $email = '';
+
+public function save(StoreContactMessage $storeContactMessage): void
+{
+    $storeContactMessage->handle($this->validate());
+
+    $this->reset();
+
+    session()->flash('success', 'Дякуємо! Ваше повідомлення надіслано.');
+}
+```
+
+### Наявні форми
+
+| Форма | Компонент | Action | Модель |
+|-------|-----------|--------|--------|
+| Контакти | `ContactMessageForm` | `StoreContactMessage` | `ContactMessage` |
+| Підписка | `SubscriberForm` | `StoreSubscriber` | `Subscriber` |
+| Відгуки | `ReviewForm` | `StoreReview` | `Review` |
+
+## Додавання нової форми
+
+1. Створи міграцію та модель: `php artisan make:model Post -m`
+2. Створи Action `app/Actions/Post/StorePost.php` з методом `handle(array $data)`.
+3. Створи Livewire-компонент `app/Livewire/Forms/PostForm.php` з атрибутами `#[Validate]`.
+4. Додай view у `resources/views/livewire/forms/post-form.blade.php`.
+5. Напиши Pest-тест у `tests/Feature/Actions/StorePostTest.php`.
+
+## Код-стайл
+
+```bash
+./vendor/bin/pint
+```
+
+## Ліцензія
+
+Проєкт розповсюджується під ліцензією [MIT](https://opensource.org/licenses/MIT).
