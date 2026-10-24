@@ -1,39 +1,42 @@
 <?php
 
-namespace Tests\Feature;
-
+use App\Livewire\Forms\ContactMessageForm;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Livewire\Livewire;
 
-class ContactFormTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    public function test_contact_page_is_displayed(): void
-    {
-        $this->get('/contact')->assertOk()->assertSee('Зворотний зв\'язок', false);
-    }
+it('displays the contact page with the form', function () {
+    $this->get('/contact')
+        ->assertOk()
+        ->assertSee('Зворотний зв\'язок', false)
+        ->assertSeeLivewire(ContactMessageForm::class);
+});
 
-    public function test_message_is_stored(): void
-    {
-        $this->post('/contact', [
-            'name' => 'Іван',
-            'email' => 'ivan@example.com',
-            'message' => 'Привіт!',
-        ])->assertRedirect(route('contact'))->assertSessionHas('status');
+it('stores the message, resets the form and flashes success', function () {
+    Livewire::test(ContactMessageForm::class)
+        ->set('name', 'Іван')
+        ->set('email', 'ivan@example.com')
+        ->set('message', 'Привіт!')
+        ->call('save')
+        ->assertHasNoErrors()
+        ->assertSet('name', '')
+        ->assertSet('email', '')
+        ->assertSet('message', '')
+        ->assertSee('Дякуємо! Ваше повідомлення надіслано.');
 
-        $this->assertDatabaseHas('contact_messages', [
-            'name' => 'Іван',
-            'email' => 'ivan@example.com',
-            'message' => 'Привіт!',
-        ]);
-    }
+    $this->assertDatabaseHas('contact_messages', [
+        'name' => 'Іван',
+        'email' => 'ivan@example.com',
+        'message' => 'Привіт!',
+    ]);
+});
 
-    public function test_fields_are_validated(): void
-    {
-        $this->post('/contact', ['email' => 'not-an-email'])
-            ->assertSessionHasErrors(['name', 'email', 'message']);
+it('validates the fields', function () {
+    Livewire::test(ContactMessageForm::class)
+        ->set('email', 'not-an-email')
+        ->call('save')
+        ->assertHasErrors(['name' => 'required', 'email' => 'email', 'message' => 'required']);
 
-        $this->assertDatabaseCount('contact_messages', 0);
-    }
-}
+    $this->assertDatabaseCount('contact_messages', 0);
+});

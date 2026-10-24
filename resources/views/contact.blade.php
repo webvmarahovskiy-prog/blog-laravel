@@ -22,6 +22,7 @@
         button { padding: 11px 20px; border: 0; border-radius: 8px; background: #1c1917; color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
         button:hover { background: #f53003; }
     </style>
+    @livewireStyles
 </head>
 <body>
 <main>
@@ -29,34 +30,9 @@
         <h1>Зворотний зв'язок</h1>
         <p class="lead">Напишіть нам, і ми відповімо на вказаний email.</p>
 
-        @if (session('status'))
-            <div class="status" role="status">{{ session('status') }}</div>
-        @endif
-
-        <form method="POST" action="{{ route('contact.store') }}" novalidate>
-            @csrf
-
-            <div class="field @error('name') has-error @enderror">
-                <label for="name">Ім'я</label>
-                <input id="name" name="name" type="text" value="{{ old('name') }}" required maxlength="255" autocomplete="name">
-                @error('name') <div class="error">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="field @error('email') has-error @enderror">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" value="{{ old('email') }}" required maxlength="255" autocomplete="email">
-                @error('email') <div class="error">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="field @error('message') has-error @enderror">
-                <label for="message">Повідомлення</label>
-                <textarea id="message" name="message" required maxlength="5000">{{ old('message') }}</textarea>
-                @error('message') <div class="error">{{ $message }}</div> @enderror
-            </div>
-
-            <button type="submit">Надіслати</button>
-        </form>
+        <livewire:forms.contact-message-form />
     </div>
 </main>
+@livewireScripts
 </body>
 </html>
